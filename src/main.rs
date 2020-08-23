@@ -2,6 +2,8 @@ extern crate getrandom;
 
 use std::env;
 use std::fmt;
+use std::ops::Range;
+
 
 #[derive(Copy, Clone, Debug)]
 struct DieRoll {
@@ -10,12 +12,19 @@ struct DieRoll {
     modify: i16,
 }
 
-// TODO(robert): This isn't uniformly random
-fn random_range(from : u16, to : u16) -> u16 {
-    let mut x = [0; 2];
-    getrandom::getrandom(&mut x).expect("Could not be random");
-    let r = (x[0] as u16) << 8 | x[1] as u16;
-    from + r % (to - from)
+fn random_in(within : Range<u16>) -> u16 {
+    let dx = within.end - within.start;
+    let mx = (0xff_ff / dx) * dx;
+    let mut r : u16;
+    loop {
+        let mut x = [0; 2];
+        getrandom::getrandom(&mut x).expect("Error obtaining random bits");
+        r = (x[0] as u16) << 8 | x[1] as u16;
+        if r < mx {
+            break;
+        }
+    }
+    within.start + r % dx
 }
 
 impl DieRoll {
@@ -60,7 +69,7 @@ impl DieRoll {
     }
 
     fn roll(&self) -> i16 {
-        (0..self.count).map(|_| {random_range(1, self.sides+1)}).sum::<u16>() as i16 + self.modify
+        (0..self.count).map(|_| {random_in(1..self.sides+1)}).sum::<u16>() as i16 + self.modify
     }
 }
 
