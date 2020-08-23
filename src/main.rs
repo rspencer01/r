@@ -4,6 +4,22 @@ use std::env;
 use std::fmt;
 use std::ops::Range;
 
+const USAGE_STRING : &str =
+"
+Usage:
+  r <dice>
+
+Valid Dice:
+  All valid dice strings are of the form
+      XdY+Z
+    or
+      XdY-Z
+  which indicates one should roll X dice with Y sides and add or subtract Z
+  from the result.
+
+Exmple:
+  r 2d8+4
+";
 
 #[derive(Copy, Clone, Debug)]
 struct DieRoll {
@@ -88,11 +104,7 @@ impl fmt::Display for DieRoll {
 fn main() {
     let args : Vec<String> = env::args().collect();
     if args.len() != 2 {
-        println!("Usage:");
-        println!("  r <dice>");
-        println!();
-        println!("Exmple:");
-        println!("  r 2d8+4");
+        println!("{}", USAGE_STRING)
     }
     match DieRoll::from(&args[1]) {
         Ok(die) => {
