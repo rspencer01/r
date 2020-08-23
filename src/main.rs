@@ -1,15 +1,21 @@
-extern crate rand;
+extern crate getrandom;
 
 use std::env;
 use std::fmt;
-
-use crate::rand::Rng;
 
 #[derive(Copy, Clone, Debug)]
 struct DieRoll {
     count: u16,
     sides: u16,
     modify: i16,
+}
+
+// TODO(robert): This isn't uniformly random
+fn random_range(from : u16, to : u16) -> u16 {
+    let mut x = [0; 2];
+    getrandom::getrandom(&mut x).expect("Could not be random");
+    let r = (x[0] as u16) << 8 | x[1] as u16;
+    from + r % (to - from)
 }
 
 impl DieRoll {
@@ -54,8 +60,7 @@ impl DieRoll {
     }
 
     fn roll(&self) -> i16 {
-        let mut rng = rand::thread_rng();
-        (0..self.count).map(|_| {rng.gen_range(1, self.sides+1)}).sum::<u16>() as i16 + self.modify
+        (0..self.count).map(|_| {random_range(1, self.sides+1)}).sum::<u16>() as i16 + self.modify
     }
 }
 
