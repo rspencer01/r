@@ -21,7 +21,7 @@ Exmple:
   r 2d8+4
 ";
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 struct DieRoll {
     count: u16,
     sides: u16,
